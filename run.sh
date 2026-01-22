@@ -1,6 +1,7 @@
 #!/bin/bash
 streamlit run ui.py \
-  --server.port=${PORT:-8501} \
+  --server.port=8080 \
   --server.address=0.0.0.0 \
   --server.enableCORS=false \
   --server.enableXsrfProtection=false
+
