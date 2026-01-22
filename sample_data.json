@@ -2,7 +2,7 @@
   "child_id": "child_001",
   "name": "Alexa",
   "age": 14,
-  "theme": "Garden",
+  "theme": "pet_care",
   "garden_name": "Eden",
   "preferred_categories": ["breathing", "movement", "sunlight"],
   "consent": {
