@@ -1,0 +1,78 @@
+{
+  "child_id": "child_001",
+  "name": "Alexa",
+  "age": 14,
+  "theme": "Garden",
+  "garden_name": "Eden",
+  "preferred_categories": ["breathing", "movement", "sunlight"],
+  "consent": {
+    "school_opt_in": true,
+    "pro_opt_in": false,
+    "parent_acknowledged": true
+  },
+  "baseline": {
+    "avg_screen_time_minutes": 180,
+    "avg_late_night_screen_minutes": 12,
+    "avg_sleep_hours": 7.5,
+    "avg_routine_consistency_score": 0.85,
+    "avg_checkin_completion": 0.9
+  },
+  "metrics": [
+    {
+      "date": "2026-01-16",
+      "screen_time_minutes": 245,
+      "late_night_screen_minutes": 42,
+      "sleep_hours": 6.2,
+      "routine_consistency_score": 0.58,
+      "checkin_completion": 0.45
+    },
+    {
+      "date": "2026-01-17",
+      "screen_time_minutes": 278,
+      "late_night_screen_minutes": 55,
+      "sleep_hours": 5.8,
+      "routine_consistency_score": 0.52,
+      "checkin_completion": 0.4
+    },
+    {
+      "date": "2026-01-18",
+      "screen_time_minutes": 302,
+      "late_night_screen_minutes": 68,
+      "sleep_hours": 5.5,
+      "routine_consistency_score": 0.48,
+      "checkin_completion": 0.35
+    },
+    {
+      "date": "2026-01-19",
+      "screen_time_minutes": 285,
+      "late_night_screen_minutes": 72,
+      "sleep_hours": 5.3,
+      "routine_consistency_score": 0.45,
+      "checkin_completion": 0.3
+    },
+    {
+      "date": "2026-01-20",
+      "screen_time_minutes": 310,
+      "late_night_screen_minutes": 85,
+      "sleep_hours": 5.1,
+      "routine_consistency_score": 0.42,
+      "checkin_completion": 0.25
+    },
+    {
+      "date": "2026-01-21",
+      "screen_time_minutes": 295,
+      "late_night_screen_minutes": 78,
+      "sleep_hours": 5.4,
+      "routine_consistency_score": 0.5,
+      "checkin_completion": 0.35
+    },
+    {
+      "date": "2026-01-22",
+      "screen_time_minutes": 268,
+      "late_night_screen_minutes": 62,
+      "sleep_hours": 5.7,
+      "routine_consistency_score": 0.55,
+      "checkin_completion": 0.42
+    }
+  ]
+}
