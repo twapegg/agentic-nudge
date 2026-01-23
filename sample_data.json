@@ -3,6 +3,8 @@
   "name": "Alexa",
   "age": 14,
   "theme": "pet_care",
+  "pet_name": "Luna",
+  "character_name": "Star",
   "garden_name": "Eden",
   "preferred_categories": ["breathing", "movement", "sunlight"],
   "consent": {
@@ -20,59 +22,157 @@
   "metrics": [
     {
       "date": "2026-01-16",
-      "screen_time_minutes": 245,
-      "late_night_screen_minutes": 42,
-      "sleep_hours": 6.2,
-      "routine_consistency_score": 0.58,
-      "checkin_completion": 0.45
+      "screen_time_minutes": 195,
+      "app_usage": {
+        "social_media_minutes": 40,
+        "games_minutes": 35,
+        "entertainment_minutes": 30,
+        "education_minutes": 30,
+        "productivity_minutes": 25,
+        "other_minutes": 10
+      },
+      "device_pickups": 62,
+      "notifications_received": 100,
+      "first_pickup_time": "07:10",
+      "late_night_screen_minutes": 18,
+      "bedtime_target_met": true,
+      "sleep_hours": 7.1,
+      "routine_consistency_score": 0.76,
+      "checkin_completion": 0.72,
+      "physical_activity_minutes": 28,
+      "outdoor_time_minutes": 22
     },
     {
       "date": "2026-01-17",
-      "screen_time_minutes": 278,
-      "late_night_screen_minutes": 55,
-      "sleep_hours": 5.8,
-      "routine_consistency_score": 0.52,
-      "checkin_completion": 0.4
+      "screen_time_minutes": 205,
+      "app_usage": {
+        "social_media_minutes": 45,
+        "games_minutes": 38,
+        "entertainment_minutes": 32,
+        "education_minutes": 28,
+        "productivity_minutes": 22,
+        "other_minutes": 10
+      },
+      "device_pickups": 65,
+      "notifications_received": 105,
+      "first_pickup_time": "07:05",
+      "late_night_screen_minutes": 20,
+      "bedtime_target_met": true,
+      "sleep_hours": 7.0,
+      "routine_consistency_score": 0.74,
+      "checkin_completion": 0.7,
+      "physical_activity_minutes": 26,
+      "outdoor_time_minutes": 20
     },
     {
       "date": "2026-01-18",
-      "screen_time_minutes": 302,
-      "late_night_screen_minutes": 68,
-      "sleep_hours": 5.5,
-      "routine_consistency_score": 0.48,
-      "checkin_completion": 0.35
+      "screen_time_minutes": 210,
+      "app_usage": {
+        "social_media_minutes": 48,
+        "games_minutes": 40,
+        "entertainment_minutes": 34,
+        "education_minutes": 27,
+        "productivity_minutes": 21,
+        "other_minutes": 10
+      },
+      "device_pickups": 67,
+      "notifications_received": 110,
+      "first_pickup_time": "07:00",
+      "late_night_screen_minutes": 22,
+      "bedtime_target_met": true,
+      "sleep_hours": 6.9,
+      "routine_consistency_score": 0.72,
+      "checkin_completion": 0.68,
+      "physical_activity_minutes": 25,
+      "outdoor_time_minutes": 18
     },
     {
       "date": "2026-01-19",
-      "screen_time_minutes": 285,
-      "late_night_screen_minutes": 72,
-      "sleep_hours": 5.3,
-      "routine_consistency_score": 0.45,
-      "checkin_completion": 0.3
+      "screen_time_minutes": 200,
+      "app_usage": {
+        "social_media_minutes": 42,
+        "games_minutes": 36,
+        "entertainment_minutes": 31,
+        "education_minutes": 29,
+        "productivity_minutes": 23,
+        "other_minutes": 10
+      },
+      "device_pickups": 64,
+      "notifications_received": 108,
+      "first_pickup_time": "07:08",
+      "late_night_screen_minutes": 19,
+      "bedtime_target_met": true,
+      "sleep_hours": 7.2,
+      "routine_consistency_score": 0.75,
+      "checkin_completion": 0.7,
+      "physical_activity_minutes": 27,
+      "outdoor_time_minutes": 21
     },
     {
       "date": "2026-01-20",
-      "screen_time_minutes": 310,
-      "late_night_screen_minutes": 85,
-      "sleep_hours": 5.1,
-      "routine_consistency_score": 0.42,
-      "checkin_completion": 0.25
+      "screen_time_minutes": 215,
+      "app_usage": {
+        "social_media_minutes": 50,
+        "games_minutes": 42,
+        "entertainment_minutes": 36,
+        "education_minutes": 26,
+        "productivity_minutes": 20,
+        "other_minutes": 11
+      },
+      "device_pickups": 68,
+      "notifications_received": 112,
+      "first_pickup_time": "06:55",
+      "late_night_screen_minutes": 24,
+      "bedtime_target_met": true,
+      "sleep_hours": 6.8,
+      "routine_consistency_score": 0.7,
+      "checkin_completion": 0.66,
+      "physical_activity_minutes": 24,
+      "outdoor_time_minutes": 17
     },
     {
       "date": "2026-01-21",
-      "screen_time_minutes": 295,
-      "late_night_screen_minutes": 78,
-      "sleep_hours": 5.4,
-      "routine_consistency_score": 0.5,
-      "checkin_completion": 0.35
+      "screen_time_minutes": 208,
+      "app_usage": {
+        "social_media_minutes": 46,
+        "games_minutes": 39,
+        "entertainment_minutes": 33,
+        "education_minutes": 28,
+        "productivity_minutes": 22,
+        "other_minutes": 10
+      },
+      "device_pickups": 66,
+      "notifications_received": 109,
+      "first_pickup_time": "07:03",
+      "late_night_screen_minutes": 21,
+      "bedtime_target_met": true,
+      "sleep_hours": 7.0,
+      "routine_consistency_score": 0.73,
+      "checkin_completion": 0.69,
+      "physical_activity_minutes": 26,
+      "outdoor_time_minutes": 19
     },
     {
       "date": "2026-01-22",
-      "screen_time_minutes": 268,
-      "late_night_screen_minutes": 62,
-      "sleep_hours": 5.7,
-      "routine_consistency_score": 0.55,
-      "checkin_completion": 0.42
+      "screen_time_minutes": 202,
+      "app_usage": {
+        "social_media_minutes": 43,
+        "games_minutes": 37,
+        "entertainment_minutes": 32,
+        "education_minutes": 29,
+        "productivity_minutes": 23,
+        "other_minutes": 10
+      },
+      "device_pickups": 63,
+      "notifications_received": 106,
+      "first_pickup_time": "07:06",
+      "late_night_screen_minutes": 20,
+      "bedtime_target_met": true,
+      "sleep_hours": 7.1,
+      "routine_consistency_score": 0.74,
+      "checkin_completion": 0.7,
+      "physical_activity_minutes": 27,
+      "outdoor_time_minutes": 20
     }
   ]
 }

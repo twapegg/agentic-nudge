@@ -359,7 +359,7 @@ if run_button:
     else:
         if uploaded_file:
             data = json.load(uploaded_file)
-            metrics = [DailyMetrics(**d) for d in data.get("daily_metrics", [])]
+            metrics = [DailyMetrics(**d) for d in data.get("metrics", [])]
         else:
             st.warning("Please upload a JSON file")
             st.stop()
@@ -387,9 +387,11 @@ if run_button:
     
     # Stream the graph execution to show real-time progress
     # Accumulate all state updates into final_state
-    final_state = initial_state.model_dump()
+    # Convert to dict for LangGraph compatibility
+    initial_state_dict = initial_state.model_dump()
+    final_state = initial_state_dict.copy()
     
-    for event in st.session_state.graph.stream(initial_state):
+    for event in st.session_state.graph.stream(initial_state_dict):
         # event is a dict with the node name as key and its output as value
         for node_name, node_output in event.items():
             if node_name in node_descriptions:
