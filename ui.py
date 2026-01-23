@@ -672,18 +672,47 @@ if st.session_state.result:
     st.markdown("""<div class="section-header"><div class="section-number">4</div><span class="section-title">Safety Check</span></div>""", unsafe_allow_html=True)
     st.markdown("""<div class="thought-bubble"><div class="thought-label">What I'm Checking For</div><div class="thought-content">Before anything goes out, I double-check that it's safe and helpful. No medical talk, no scary labels, no invasive stuff — just positive, supportive content.</div></div>""", unsafe_allow_html=True)
     
+    # Display safety history if available
+    if result.get("safety_history"):
+        safety_history = result["safety_history"]
+        if isinstance(safety_history, list) and len(safety_history) > 0:
+            st.markdown(f"""<div style="background: rgba(99, 102, 241, 0.15); padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid rgba(99, 102, 241, 0.3);"><p style="margin: 0; font-weight: 600; color: #818cf8; font-size: 0.9rem;">🔄 Critic Review History ({len(safety_history)} iteration{"s" if len(safety_history) > 1 else ""})</p></div>""", unsafe_allow_html=True)
+            
+            for idx, historical_safety in enumerate(safety_history):
+                hist_data = historical_safety.model_dump() if hasattr(historical_safety, 'model_dump') else historical_safety
+                iteration_num = hist_data.get("iteration", idx)
+                approved = hist_data.get("approved", False)
+                violations = hist_data.get("violations", [])
+                
+                iteration_label = "Initial Review" if iteration_num == 0 else f"Revision {iteration_num}"
+                status_icon = "✅" if approved else "⚠️"
+                status_color = "#34d399" if approved else "#f87171"
+                
+                with st.expander(f"{status_icon} {iteration_label} - {'Approved' if approved else f'{len(violations)} Issue(s) Found'}", expanded=(idx == len(safety_history) - 1)):
+                    if approved:
+                        st.markdown(f"""<div style="color: {status_color}; padding: 12px; border-radius: 8px; background: rgba(52, 211, 153, 0.1);">✓ This iteration passed all safety checks!</div>""", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"**Issues found in iteration {iteration_num}:**")
+                        for v in violations:
+                            st.markdown(f"- {v}")
+                        if hist_data.get("revision_instructions"):
+                            st.markdown(f"""<div style="background: rgba(245, 158, 11, 0.15); padding: 12px; border-radius: 8px; margin-top: 12px; border: 1px solid rgba(245, 158, 11, 0.3); color: #fcd34d;"><strong>Revision Instructions:</strong> {hist_data.get("revision_instructions")}</div>""", unsafe_allow_html=True)
+    
     if result.get("safety_output"):
         safety = result["safety_output"]
         s_data = safety.model_dump() if hasattr(safety, 'model_dump') else safety
         approved = s_data.get("approved", False)
         violations = s_data.get("violations", [])
+        iteration_num = s_data.get("iteration", 0)
+        
+        iteration_text = f" (Iteration {iteration_num})" if iteration_num > 0 else ""
         
         if approved:
-            st.markdown("""<div class="safety-approved"><div class="safety-icon">✅</div><div class="safety-title" style="color: #34d399;">All Good!</div><p style="color: #6ee7b7; margin: 8px 0 0 0;">Everything passed my safety and ethics review</p></div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="safety-approved"><div class="safety-icon">✅</div><div class="safety-title" style="color: #34d399;">All Good!{iteration_text}</div><p style="color: #6ee7b7; margin: 8px 0 0 0;">Everything passed my safety and ethics review</p></div>""", unsafe_allow_html=True)
         else:
             violations_html = "".join([f'<p style="color: #fca5a5; margin: 8px 0;">• {v}</p>' for v in violations])
             revision_html = f'<p style="color: #fcd34d; background: rgba(245, 158, 11, 0.15); padding: 12px; border-radius: 8px; margin-top: 16px; border: 1px solid rgba(245, 158, 11, 0.3);"><strong>How to fix it:</strong> {s_data.get("revision_instructions")}</p>' if s_data.get("revision_instructions") else ''
-            st.markdown(f"""<div class="safety-rejected"><div class="safety-icon">⚠️</div><div class="safety-title" style="color: #f87171;">Hmm, Found Some Issues</div>{violations_html}{revision_html}</div>""", unsafe_allow_html=True)
+            st.markdown(f"""<div class="safety-rejected"><div class="safety-icon">⚠️</div><div class="safety-title" style="color: #f87171;">Hmm, Found Some Issues{iteration_text}</div>{violations_html}{revision_html}</div>""", unsafe_allow_html=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
         ethics = ["No Diagnosing", "No Labels", "No Spying", "Strength-Based", "Privacy First"]

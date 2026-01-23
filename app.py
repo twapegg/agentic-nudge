@@ -141,6 +141,7 @@ class SafetyGuardianOutput(BaseModel):
     approved: bool
     violations: list[str]
     revision_instructions: str = ""
+    iteration: int = Field(default=0, description="Which iteration/reiteration this critique came from")
 
 
 # =============================================================================
@@ -279,6 +280,7 @@ class OrchestratorState(BaseModel):
     
     # PHASE 3: Critic output
     safety_output: Optional[SafetyGuardianOutput] = None
+    safety_history: list[SafetyGuardianOutput] = Field(default_factory=list, description="History of all safety checks with iteration numbers")
     
     # Control flow
     needs_revision: bool = False
@@ -698,33 +700,40 @@ def signal_interpreter_agent(state: OrchestratorState) -> dict:
 PLANNER_SYSTEM_PROMPT = """You are the PLANNER agent for a youth well-being support system.
 Your job is to decide what action to take based on behavioral findings.
 
-CORE PRINCIPLE: Always choose the LEAST intrusive helpful next step.
-Restraint (HOLD) is a VALID and often PREFERRED decision.
+CORE PRINCIPLE: Be proactive with gentle support, escalate only when necessary.
+Start with lighter interventions and scale up only if patterns persist or worsen.
 
 AVAILABLE PLANS (choose exactly ONE):
 1. HOLD - Intentionally take no action. Choose this when:
    - No significant pattern shifts detected
    - Signals are ambiguous or may be normal variation
-   - Recent actions haven't had time to show effect
+   - Recent NUDGE was sent within last 2 days (avoid nudge fatigue)
    
 2. NUDGE_CHILD - Gentle, optional youth-facing support. Choose this when:
-   - Mild pattern shifts detected (low severity findings)
-   - Child autonomy should be prioritized
-   - A gentle reminder might help without parent involvement
+   - ANY pattern shift detected (low, medium severity)
+   - Minor behavioral changes that could benefit from a friendly reminder
+   - You want to offer support without involving parents yet
+   - PREFER THIS over HOLD when you see any meaningful change
+   - This is your PRIMARY tool for early support
    
 3. BRIEF_PARENT - Calm parent guidance and coaching. Choose this when:
-   - Moderate pattern shifts detected (medium severity)
-   - Parent awareness is appropriate without escalation
-   - Nudges haven't been effective (nudge fatigue)
+   - Medium severity patterns persist for 3+ days despite nudges
+   - Multiple low-severity patterns accumulate
+   - Parent involvement would be more helpful than child nudges
+   - Child hasn't engaged with recent nudges
    
 4. ESCALATE - Structured observation summary. Choose this when:
-   - Persistent high-severity patterns across 4+ days
+   - HIGH severity patterns persist for 4+ days
    - OR multiple medium-severity patterns across 5+ days
+   - AND previous lighter interventions (NUDGE/BRIEF) have been tried
    - AND parent has acknowledged consent
+   - AVOID jumping straight to escalation without trying lighter approaches first
 
 CRITICAL RULES:
 - NEVER use clinical terms (depression, anxiety, disorder, etc.)
-- Prefer HOLD over action when in doubt
+- When in doubt between HOLD and NUDGE, choose NUDGE (nudges are gentle and optional)
+- When in doubt between NUDGE and BRIEF, choose NUDGE (less intrusive)
+- Only escalate after trying lighter interventions first
 - Consider consent settings before escalating
 - Always explain why you DIDN'T choose a stronger action"""
 
@@ -1798,7 +1807,13 @@ def safety_guardian_agent(state: OrchestratorState) -> dict:
                 "outputs_to_check": "\n\n".join(outputs_text),
                 "format_instructions": parser.get_format_instructions()
             })
-            return {"safety_output": result}
+            # Add iteration number to LLM result
+            result.iteration = state.revision_count
+            updated_history = state.safety_history + [result]
+            return {
+                "safety_output": result,
+                "safety_history": updated_history
+            }
         except Exception as e:
             print(f"  ⚠️ LLM safety check error: {e}, using rule-based result")
     
@@ -1808,11 +1823,21 @@ def safety_guardian_agent(state: OrchestratorState) -> dict:
     if not approved:
         revision_instructions = f"Found {len(violations)} violation(s): " + "; ".join(violations[:3])
     
-    return {"safety_output": SafetyGuardianOutput(
+    # Create safety output with iteration number
+    safety_result = SafetyGuardianOutput(
         approved=approved,
         violations=violations,
-        revision_instructions=revision_instructions
-    )}
+        revision_instructions=revision_instructions,
+        iteration=state.revision_count
+    )
+    
+    # Add to history
+    updated_history = state.safety_history + [safety_result]
+    
+    return {
+        "safety_output": safety_result,
+        "safety_history": updated_history
+    }
 
 
 # =============================================================================
@@ -2061,13 +2086,42 @@ def run_scenario(scenario: str, graph, consent: ConsentSettings = None,
     print(f"\n{'='*60}")
     print("  PHASE 3: CRITIC (Safety Review)")
     print('='*60)
+    
+    # Display safety history if available
+    if result.get("safety_history"):
+        safety_history = result["safety_history"]
+        if isinstance(safety_history, list) and len(safety_history) > 0:
+            print(f"\n  🔄 Critic Review History ({len(safety_history)} iteration{'s' if len(safety_history) > 1 else ''})")
+            print('='*60)
+            for idx, historical_safety in enumerate(safety_history):
+                hist_data = historical_safety.model_dump() if hasattr(historical_safety, 'model_dump') else historical_safety
+                iteration_num = hist_data.get("iteration", idx)
+                approved = hist_data.get("approved", False)
+                violations = hist_data.get("violations", [])
+                
+                iteration_label = "Initial Review" if iteration_num == 0 else f"Revision {iteration_num}"
+                status = "✅ APPROVED" if approved else f"⚠️ REJECTED ({len(violations)} issue(s))"
+                
+                print(f"\n  {iteration_label}: {status}")
+                if not approved:
+                    print(f"  Violations:")
+                    for v in violations:
+                        print(f"    - {v}")
+                    if hist_data.get("revision_instructions"):
+                        print(f"  Instructions: {hist_data.get('revision_instructions')}")
+    
     if result.get("safety_output"):
         safety = result["safety_output"]
-        print(json.dumps(safety.model_dump() if hasattr(safety, 'model_dump') else safety, indent=2))
+        s_data = safety.model_dump() if hasattr(safety, 'model_dump') else safety
+        iteration_num = s_data.get("iteration", 0)
+        iteration_text = f" (Iteration {iteration_num})" if iteration_num > 0 else ""
+        
+        print(f"\n  Final Safety Output{iteration_text}:")
+        print(json.dumps(s_data, indent=2))
         if hasattr(safety, 'approved') and safety.approved:
-            print("\n  ✓ All outputs passed safety review")
+            print(f"\n  ✓ All outputs passed safety review{iteration_text}")
         elif hasattr(safety, 'approved'):
-            print("\n  ✗ Safety violations detected - outputs blocked")
+            print(f"\n  ✗ Safety violations detected{iteration_text} - outputs blocked")
     
     # Print explainability
     why_result = why_am_i_seeing_this(OrchestratorState(**result))
@@ -2230,11 +2284,38 @@ def run_from_json(json_path: str, graph):
     print(f"\n{'='*60}")
     print("  PHASE 3: CRITIC (Safety Review)")
     print('='*60)
+    
+    # Display safety history if available
+    if result.get("safety_history"):
+        safety_history = result["safety_history"]
+        if isinstance(safety_history, list) and len(safety_history) > 0:
+            print(f"\n  🔄 Critic Review History ({len(safety_history)} iteration{'s' if len(safety_history) > 1 else ''})")
+            print('-'*60)
+            for idx, historical_safety in enumerate(safety_history):
+                hist_data = historical_safety.model_dump() if hasattr(historical_safety, 'model_dump') else historical_safety
+                iteration_num = hist_data.get("iteration", idx)
+                approved = hist_data.get("approved", False)
+                violations = hist_data.get("violations", [])
+                
+                iteration_label = "Initial Review" if iteration_num == 0 else f"Revision {iteration_num}"
+                status = "✅ APPROVED" if approved else f"⚠️ REJECTED ({len(violations)} issue(s))"
+                
+                print(f"\n  {iteration_label}: {status}")
+                if not approved and violations:
+                    print(f"  Violations:")
+                    for v in violations:
+                        print(f"    - {v}")
+    
     if result.get("safety_output"):
         safety = result["safety_output"]
-        print(json.dumps(safety.model_dump() if hasattr(safety, 'model_dump') else safety, indent=2))
+        s_data = safety.model_dump() if hasattr(safety, 'model_dump') else safety
+        iteration_num = s_data.get("iteration", 0)
+        iteration_text = f" (Iteration {iteration_num})" if iteration_num > 0 else ""
+        
+        print(f"\n  Final Safety Output{iteration_text}:")
+        print(json.dumps(s_data, indent=2))
         if hasattr(safety, 'approved') and safety.approved:
-            print("\n  ✓ All outputs passed safety review")
+            print(f"\n  ✓ All outputs passed safety review{iteration_text}")
     
     return result
 
